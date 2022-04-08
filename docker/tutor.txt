@@ -1,0 +1,33 @@
+1. if on windows, first open docker desktop
+
+
+
+4. docker images -> show all images downloaded
+
+5.1. docker ps -> all process that are running.
+
+5.2. docker ps -a -> all process.
+
+
+7. docker stop 3-digits -> Stop the container.
+
+8. docker start 3-digits -> Start the container.
+
+
+3. docker pull redis -> download latest redis's version
+
+2. docker run postgres:9.6 -> download (if not) and start the specify postgres version 9.6, latest if blank
+
+6. docker run -d redis -> run in detach mode (silent mode), latest if blank
+
+9. docker run -d -p 6000:6379 redis -> run latest redis with physic port: image port binding.
+
+10. docker logs 3-digits/name -> show logs of the process.
+
+11. docker run -d -p 6001:6379 --name older-redis redis:4.0 -> place your name of the image.
+
+12. docker container exec -it 3-digits /bin/bash -> execute the bash shell of the container
+
+
+
+

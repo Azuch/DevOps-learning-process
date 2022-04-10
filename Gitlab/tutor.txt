@@ -36,6 +36,8 @@ deploy s3:
     image:
         name: amazon/aws-cli:2.4.11
         entrypoint: [""]
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     script:
         - aws --version
         - aws s3 cp test.txt s3://$AZUCH_S3_BUCKET -> copy file
@@ -54,4 +56,50 @@ https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
 
 
 rules:
-    - if $CI_COMMIT_REF_NAME = $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+8. Adding post deploy test and it is only run when merge. Just check after done all the work, the web still alive.
+
+variables:
+    APP_BASE_URL: http://azuch-0942022.s3-website-us-east-1.amazonaws.com
+
+post deploy test:
+    stage: post test
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    image: curlimages/curl
+    script:
+        - echo $APP_BASE_URL
+        - curl $APP_BASE_URL | grep "React App" 
+
+9. Adding staging environment before production environment.
+
+S3
+
+- Create new bucket: ...-staging
+- ...
+
+GitLab
+
+- create envs: staging with url of s3-staging | production with url of s3
+- change the variables: Setting - CI/CD - Variables
+    + AWS_S3_BUCKET
+
+- add stage: deploy staging & test
+- in job, add: environment: staging
+
+10. Reuse code: using .deploy and extends: .deploy
+
+.deploy:
+    ...
+
+deploy staging:
+    stage: deploy staging & test
+    environment: staging
+    extends: .deploy
+
+11. Assign version using CI_PIPELINE_IID and test with it (ID is the Id, IID is the internal, it is number ascending)
+
+12. Continuous Delivery using when: manual in deploy production
+
+

@@ -1,0 +1,57 @@
+1. first file to create is .gitlab-ci.yml -> continuous integration gitlab. yaml
+
+2. If error, check the tabs,it may set default is 8 instead 4.
+
+3. the structure is:
+
+stages:
+    - stage 1
+    - stage 2
+    ...
+
+variables: -> list of variables
+    buildFileName: "laptop.txt"
+    ...
+
+build laptop: -> name of 1st job
+    image: node:lts-alpine -> docker's image. It means the alpine dist with lts node installed
+    stage: build laptop
+    script: -> scripts in order
+        - echo "Building laptop..."
+        - touch build/$buildFileName
+        ...
+    artifacts: -> things should be keep after the container is destroyed
+        paths:
+            - build
+
+test laptop: -> name of 2nd job
+    ...
+
+.nothing important: -> add a . to disable job
+
+4. Upload using AWS S3
+
+deploy s3:
+    stage: deploy
+    image:
+        name: amazon/aws-cli:2.4.11
+        entrypoint: [""]
+    script:
+        - aws --version
+        - aws s3 cp test.txt s3://$AZUCH_S3_BUCKET -> copy file
+        - aws s3 sync build s3://$AZUCH_S3_BUCKET --delete -> sync build folder to s3 and delete non-sync file
+
+5. Variables on GitLab env
+
+- Protect: Only protect brach can reach these vars.
+- Mask: It is hidden lke this: *****
+
+6. Read the settings of AWS S3
+
+7. It does't make sense when in dev mode, you keep always upload to s3, it eats all the bandwidth; beside, you just want to test the error when build web. So, just deploy to s3 when it merges to main.
+And, we will use predefine variables of Gitlab.
+https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+
+
+rules:
+    - if $CI_COMMIT_REF_NAME = $CI_DEFAULT_BRANCH

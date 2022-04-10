@@ -1,0 +1,9 @@
+1. This is Identity and Access Management -> It is control who can access what services.
+
+- Add user 
+- username: gitlab
+- check on access key
+- policies: your service
+- no tags
+- add these variables to Gitlab: AWS_DEFAULT_REGION-ACCESS_KEY_ID-SECRET
+- retry runner

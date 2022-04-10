@@ -1,0 +1,36 @@
+1. I am using it in docker' amazon/aws-cli:2.4.11
+
+deploy s3:
+    stage: deploy
+    image:
+        name: amazon/aws-cli:2.4.11
+        entrypoint: [""]
+    script:
+        - aws --version
+        - aws s3 cp test.txt s3://$AZUCH_S3_BUCKET -> copy file
+        - aws s3 sync build s3://$AZUCH_S3_BUCKET --delete -> sync build folder to s3 and delete non-sync file
+
+2. Hosting website:
+
+- Enable static website
+- Index.html and error.html
+- Permissions:
+    + Uncheck block all
+    + Bucket Policy:
+        - Search s3 -> getObject
+        - Edit the Policy:
+
+        {
+    "Version": "2012-10-17",
+    "Id": "Policy1649577651326",
+    "Statement": [
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::azuch-0942022/*"
+        }
+    ]
+}
+

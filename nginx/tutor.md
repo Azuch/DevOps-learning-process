@@ -1,0 +1,1 @@
+1. The folder contains index.html must be copied to /usr/share/nginx/html

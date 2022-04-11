@@ -10,6 +10,7 @@
 
 
 7. docker stop 3-digits -> Stop the container.
+7.1. docker kill 3-digits
 
 8. docker start 3-digits -> Start the container.
 

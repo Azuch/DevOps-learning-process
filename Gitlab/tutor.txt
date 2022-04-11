@@ -102,4 +102,76 @@ deploy staging:
 
 12. Continuous Delivery using when: manual in deploy production
 
+13. Create a dockerfile that do:
+FROM nginx:1.21.6-alpine
+COPY build /usr/share/nginx/html
+
+14. We use BeanStalk now, so we gonna remove the deploy to s3 states
+
+15. Add new state: build docker image
+https://hub.docker.com/_/docker
+
+build docker image:
+    stage: package
+    image: docker:20.10.14
+    services:
+        - docker:20.10.14-dind
+    script:
+        - docker build -t $CI_REGISTRY_IMAGE -t $CI_REGISTRY_IMAGE:$APP_VERSION .
+        - docker image ls
+
+16. After job finish, images will gone, so we will use gitlab's registry container to store registry of docker images.
+
+Packages & registries - Container registries
+
+17. Docker login to registry using -u (user'registry), CI_REGISTRY, and --password-stdin from echo $CI_REGISTRY_PASSWORD
+
+echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+18. We will test the docker image just build by checking the version after 
+
+curl http://website/version.html | grep $APP_VERSION
+
+19. Now, deploy to production
+
+- first, add stage:
+
+    deploy production:
+    stage: deploy
+    environment: production
+    image:
+        name: amazon/aws-cli:2.4.11
+        entrypoint: [""]
+    script:
+        - aws --version
+        - yum install -y gettext
+        - envsubst < templates/Dockerrun.aws.json > Dockerrun.aws.json
+        - envsubst < templates/auth.json > auth.json
+        - cat *.json
+        - aws s3 cp Dockerrun.aws.json s3://$AWS_S3_BUCKET
+        - aws s3 cp auth.json s3://$AWS_S3_BUCKET
+
+- Second, change the AWS_S3_BUCKET variables
+
+- Third, add Deploy Token: Setting - repositories - deploy tokens With read repositories and read registry
+
+- Fourth, add DEPLOY_TOKEN variable with mask
+
+- The yaml file:
+deploy production:
+    stage: deploy
+    environment: production
+    image:
+        name: amazon/aws-cli:2.4.11
+        entrypoint: [""]
+    script:
+        - aws --version
+        - yum install -y gettext -> need to install to use envsubst
+        - export DEPLOY_TOKEN=$(echo $GITLAB_DEPLOY_TOKEN | tr -d "\n" | base64) -> aws required base64 decode
+        - echo $AWS_S3_BUCKET
+        - envsubst < templates/Dockerrun.aws.json > Dockerrun.aws.json -> create file
+        - envsubst < templates/auth.json > auth.json -> create file
+        - cat *.json
+        - aws s3 cp Dockerrun.aws.json s3://$AWS_S3_BUCKET
+        - aws s3 cp auth.json s3://$AWS_S3_BUCKET
 

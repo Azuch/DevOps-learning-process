@@ -132,7 +132,7 @@ echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin 
 
 curl http://website/version.html | grep $APP_VERSION
 
-19. Now, deploy to production
+19. Now, deploy to production's3
 
 - first, add stage:
 
@@ -153,9 +153,9 @@ curl http://website/version.html | grep $APP_VERSION
 
 - Second, change the AWS_S3_BUCKET variables
 
-- Third, add Deploy Token: Setting - repositories - deploy tokens With read repositories and read registry
+- Third, add Gitlab Deploy Token: Setting - repositories - deploy tokens With read repositories and read registry
 
-- Fourth, add DEPLOY_TOKEN variable with mask
+- Fourth, add GITLAB_DEPLOY_TOKEN variable with mask
 
 - The yaml file:
 deploy production:
@@ -172,6 +172,24 @@ deploy production:
         - envsubst < templates/Dockerrun.aws.json > Dockerrun.aws.json -> create file
         - envsubst < templates/auth.json > auth.json -> create file
         - cat *.json
-        - aws s3 cp Dockerrun.aws.json s3://$AWS_S3_BUCKET
-        - aws s3 cp auth.json s3://$AWS_S3_BUCKET
+        - aws s3 cp Dockerrun.aws.json s3://$AWS_S3_BUCKET -> get docker' image's registry of privacy repository, need deploy_token from auth.json, 
+        - aws s3 cp auth.json s3://$AWS_S3_BUCKET -> authentication, use deploy_token which is decode by base64, to authentication so s3
 
+19. Create application from Dockerrun: create, update, wait and test
+
+- change permission in IAM, add access to bs 
+
+- edit url in production environment' production
+
+- add variable: 
+    APP_NAME: "My website"
+    APP_ENV_NAME: "Mywebsite-env"
+
+
+    - aws elasticbeanstalk create-application-version --application-name $APP_NAME --version-label $APP_VERSION --source-bundle S3Bucket=$AWS_S3_BUCKET,S3Key=Dockerrun.aws.json
+    - aws elasticbeanstalk update-environment --application-name $APP_NAME --version-label $APP_VERSION --environment-name $APP_ENV_NAME
+    - aws elasticbeanstalk wait environment-updated --application-name $APP_NAME --version-label $APP_VERSION --environment-name $APP_ENV_NAME
+    - curl $CI_ENVIRONMENT_URL/version.html | grep $APP_VERSION
+
+20. Note:
+remember to check the app_version

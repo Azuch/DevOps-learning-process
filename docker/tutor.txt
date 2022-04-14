@@ -11,8 +11,11 @@
 
 7. docker stop 3-digits -> Stop the container.
 7.1. docker kill 3-digits
+7.2 docker rm 3-digits
+7.3 docker rmi [image-name]
 
 8. docker start 3-digits -> Start the container.
+
 
 
 3. docker pull redis -> download latest redis's version
@@ -23,11 +26,50 @@
 
 9. docker run -d -p 6000:6379 redis -> run latest redis with physic port: image port binding.
 
-10. docker logs 3-digits/name -> show logs of the process.
 
 11. docker run -d -p 6001:6379 --name older-redis redis:4.0 -> place your name of the image.
 
 12. docker container exec -it 3-digits /bin/bash -> execute the bash shell of the container
+
+12.1. docker run -it image -> create and execute the bash prompt
+
+
+13. docker exec 3-digits cmd -> execute the cmd
+
+***Volume mapping
+
+1. docker run -it --name myAl -v C:\Users\namlu\Desktop\Dev\DevOps\yaml:/home alpine : map the volume on local to container, it keeps although the container is destroyed.
+
+***Inspect
+
+1. docker inspect 3-digits -> show info about the container
+
+***logs
+
+1. docker logs 3-digits/name -> show logs of the process.
+
+***Environment variables
+
+1. Find the env by inspect cmd
+
+2. docker run -e APP_COLOR=green image
+
+*** Create an image
+
+1. Create a Dockerfile
+    + FROM ubuntu:20.04
+    
+    +RUN cmd
+
+    +COPY . ./opt/nam -> copy current dir to /opt/nam on container
+
+
+2. docker build . -t azuch/my-app
+
+3. docker login
+
+4. docker push azuch/my-app
+
 
 
 
